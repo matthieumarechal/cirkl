@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tasks</title>
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tasks">
+
+<!-- Icônes iOS -->
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icon-120.png">
+<link rel="apple-touch-icon" sizes="76x76"   href="icon-76.png">
+
+<!-- Splash screens iOS -->
+<!-- iPhone 14 Pro Max -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="splash-1290x2796.png">
+<!-- iPhone 14 Pro -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="splash-1179x2556.png">
+<!-- iPhone 14 / 13 / 12 -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="splash-1170x2532.png">
+<!-- iPhone 8+ -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="splash-1080x1920.png">
+<!-- iPhone 8 / SE -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="splash-750x1334.png">
+<!-- iPad Pro 12.9 -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" href="splash-2048x2732.png">
+<!-- iPad Pro 11 -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" href="splash-1668x2388.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F0E8;
+    --surface: #FDFAF4;
+    --surface2: #EDE8DE;
+    --ink: #2C2A24;
+    --ink2: #7A7569;
+    --accent: #D85A30;
+    --accent-light: #FAECE7;
+    --done-text: #B4B2A9;
+    --done-bg: #f0e9de;
+    --border: rgba(44,42,36,0.12);
+    --radius: 16px;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    padding: 0 0 6rem;
+  }
+
+  header {
+    padding: 2.5rem 1.5rem 1rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+
+  header h1 span {
+    color: var(--accent);
+  }
+
+  #uncheck-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  #uncheck-btn:hover {
+    background: var(--surface2);
+    border-color: rgba(44,42,36,0.25);
+    color: var(--ink);
+  }
+
+  #clear-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+
+  #clear-btn:hover {
+    background: #FCEBEB;
+    border-color: #E24B4A;
+    color: #A32D2D;
+  }
+
+  #task-list {
+    padding: 1rem 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, opacity 0.3s;
+    user-select: none;
+    -webkit-user-select: none;
+    animation: slideIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .task-item:active {
+    transform: scale(0.98);
+  }
+
+  .task-item.done {
+    background: var(--done-bg);
+    border-color: transparent;
+    opacity: 0.65;
+  }
+
+  .checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .task-item.done .checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checkbox-inner {
+    width: 10px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .task-item.done .checkbox-inner {
+    opacity: 1;
+  }
+
+  .task-item.done .checkbox-inner svg path {
+    stroke: white;
+  }
+
+  .task-label {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.4;
+    flex: 1;
+    transition: color 0.2s;
+  }
+
+  .task-item.done .task-label {
+    color: var(--done-text);
+    text-decoration: line-through;
+    text-decoration-color: var(--done-text);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--ink2);
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    opacity: 0;
+    animation: fadeIn 0.4s 0.2s forwards;
+  }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 1.5rem calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(253,250,244,0.92);
+  }
+
+  #new-task-input {
+    flex: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-appearance: none;
+  }
+
+  #new-task-input::placeholder {
+    color: var(--ink2);
+    opacity: 0.7;
+  }
+
+  #new-task-input:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  #add-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s, background 0.12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #add-btn:hover { background: #C44E26; }
+  #add-btn:active { transform: scale(0.92); }
+
+  #add-btn svg { pointer-events: none; }
+
+  #progress-wrap {
+    padding: 0.75rem 1.5rem 0.25rem;
+  }
+
+  #progress-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  #progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.45s cubic-bezier(0.34,1.2,0.64,1);
+  }
+
+  #progress-bar.full {
+    background: #639922;
+  }
+
+  #counter {
+    font-size: 0.82rem;
+    color: var(--ink2);
+    padding: 0.3rem 1.5rem 0.4rem;
+    font-weight: 300;
+  }
+
+  /* Inline clear confirmation */
+  #confirm-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 0 1.5rem 0.5rem;
+    font-size: 0.88rem;
+    color: #A32D2D;
+  }
+
+  #confirm-bar.visible { display: flex; }
+
+  #confirm-bar span { flex: 1; font-weight: 400; }
+
+  .confirm-actions { display: flex; gap: 8px; }
+
+  .confirm-actions button {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    border: none;
+  }
+
+  #confirm-yes {
+    background: #E24B4A;
+    color: white;
+  }
+
+  #confirm-no {
+    background: rgba(44,42,36,0.08);
+    color: var(--ink);
+  }
+
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 2px;
+    color: rgba(44,42,36,0.18);
+    cursor: grab;
+    flex-shrink: 0;
+    touch-action: none;
+    transition: color 0.15s;
+  }
+
+  .drag-handle:hover { color: var(--ink2); }
+
+  .dragging-active .task-item { transition: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CIRKL<span>·</span></h1>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <button id="uncheck-btn" onclick="uncheckAll()" title="Tout décocher">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      Tout décocher
+    </button>
+    <button id="clear-btn" onclick="clearAll()">Effacer</button>
+  </div>
+</header>
+
+<div id="progress-wrap">
+  <div id="progress-track"><div id="progress-bar"></div></div>
+</div>
+<div id="counter"></div>
+<div id="confirm-bar">
+  <span>Effacer toutes les tâches ?</span>
+  <div class="confirm-actions">
+    <button id="confirm-no" onclick="cancelClear()">Annuler</button>
+    <button id="confirm-yes" onclick="confirmClear()">Effacer</button>
+  </div>
+</div>
+<div id="task-list"></div>
+
+<div class="input-bar">
+  <input id="new-task-input" type="text" placeholder="Ajouter une tâche…" maxlength="120" autocomplete="off" autocorrect="off" spellcheck="false">
+  <button id="add-btn" onclick="addTask()">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M10 4V16M4 10H16" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem('tasks_v1') || '[]');
+const list = document.getElementById('task-list');
+const input = document.getElementById('new-task-input');
+const counter = document.getElementById('counter');
+const progressBar = document.getElementById('progress-bar');
+const confirmBar = document.getElementById('confirm-bar');
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+input.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+function save() {
+  localStorage.setItem('tasks_v1', JSON.stringify(tasks));
+}
+
+function updateCounter() {
+  const done = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  progressBar.style.width = pct + '%';
+  progressBar.classList.toggle('full', pct === 100 && total > 0);
+  if (total === 0) { counter.textContent = ''; return; }
+  counter.textContent = done === total
+    ? `✓ Tout terminé — bravo !`
+    : `${done} / ${total} terminée${done > 1 ? 's' : ''} · ${pct}%`;
+}
+
+function render() {
+  list.innerHTML = '';
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="empty-state">Aucune tâche pour l\'instant…<br>Ajoute quelque chose !</div>';
+    updateCounter();
+    return;
+  }
+  tasks.forEach((task, i) => {
+    const el = document.createElement('div');
+    el.className = 'task-item' + (task.done ? ' done' : '');
+    el.innerHTML = `
+      <div class="checkbox">
+        <div class="checkbox-inner">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M2 5.5L4.5 8L8 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <span class="task-label">${escHtml(task.text)}</span>
+      <div class="drag-handle">
+        <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+          <circle cx="5" cy="4" r="1.5" fill="currentColor"/>
+          <circle cx="11" cy="4" r="1.5" fill="currentColor"/>
+          <circle cx="5" cy="10" r="1.5" fill="currentColor"/>
+          <circle cx="11" cy="10" r="1.5" fill="currentColor"/>
+          <circle cx="5" cy="16" r="1.5" fill="currentColor"/>
+          <circle cx="11" cy="16" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+    `;
+    el.addEventListener('click', () => toggleTask(i, el));
+    initDragHandle(el.querySelector('.drag-handle'), el, i);
+    list.appendChild(el);
+  });
+  updateCounter();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function initDragHandle(handle, el, index) {
+  handle.addEventListener('click', e => e.stopPropagation());
+  handle.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    handle.setPointerCapture(e.pointerId);
+
+    const rect = el.getBoundingClientRect();
+    const startY = e.clientY;
+    const cloneTop = rect.top;
+
+    const clone = el.cloneNode(true);
+    Object.assign(clone.style, {
+      position: 'fixed', top: cloneTop + 'px', left: rect.left + 'px',
+      width: rect.width + 'px', margin: '0', zIndex: '1000',
+      opacity: '0.88', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+      pointerEvents: 'none', transition: 'none', animation: 'none'
+    });
+    document.body.appendChild(clone);
+    el.style.opacity = '0.25';
+    document.body.classList.add('dragging-active');
+
+    // Insertion line indicator
+    const line = document.createElement('div');
+    Object.assign(line.style, {
+      position: 'fixed', height: '2px', background: 'var(--accent)',
+      borderRadius: '2px', pointerEvents: 'none', zIndex: '999',
+      left: rect.left + 'px', width: rect.width + 'px', display: 'none'
+    });
+    document.body.appendChild(line);
+
+    let targetIndex = null;
+
+    const onMove = e => {
+      clone.style.top = (cloneTop + e.clientY - startY) + 'px';
+
+      const items = [...document.querySelectorAll('.task-item')];
+
+      // Gap-based detection: every Y position maps to a valid gap (no dead zones).
+      // gap = 0 means "before first item", gap = N means "after last item".
+      let gap = items.length;
+      for (let i = 0; i < items.length; i++) {
+        const r = items[i].getBoundingClientRect();
+        if (e.clientY < r.top + r.height / 2) { gap = i; break; }
+      }
+
+      // After removing the source item, compute the splice target
+      targetIndex = gap > index ? gap - 1 : gap;
+
+      // Show the indicator line at the gap, hide if it would be a no-op
+      if (targetIndex === index) {
+        line.style.display = 'none';
+      } else {
+        let lineY;
+        if (gap === 0) {
+          lineY = items[0].getBoundingClientRect().top;
+        } else if (gap >= items.length) {
+          lineY = items[items.length - 1].getBoundingClientRect().bottom;
+        } else {
+          const rA = items[gap - 1].getBoundingClientRect();
+          const rB = items[gap].getBoundingClientRect();
+          lineY = (rA.bottom + rB.top) / 2;
+        }
+        line.style.top = (lineY - 1) + 'px';
+        line.style.display = 'block';
+      }
+    };
+
+    const onUp = () => {
+      clone.remove();
+      line.remove();
+      el.style.opacity = '';
+      document.body.classList.remove('dragging-active');
+      if (targetIndex !== null && targetIndex !== index) {
+        const moved = tasks.splice(index, 1)[0];
+        tasks.splice(targetIndex, 0, moved);
+        save();
+        render();
+      }
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+  });
+}
+
+function addTask() {
+  const text = input.value.trim();
+  if (!text) return;
+  tasks.push({ text, done: false });
+  save();
+  input.value = '';
+  render();
+  const items = list.querySelectorAll('.task-item');
+  const last = items[items.length - 1];
+  if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function toggleTask(i, el) {
+  tasks[i].done = !tasks[i].done;
+  save();
+  el.classList.toggle('done', tasks[i].done);
+  el.querySelector('.task-label').style.color = tasks[i].done ? 'var(--done-text)' : 'var(--ink)';
+  if (tasks[i].done) {
+    const allDone = tasks.length > 0 && tasks.every(t => t.done);
+    explodeConfetti(el);
+    playChime();
+    if (allDone) {
+      setTimeout(() => { victoryRain(); playVictory(); }, 250);
+    }
+  }
+  updateCounter();
+}
+
+function uncheckAll() {
+  if (!tasks.some(t => t.done)) return;
+  tasks.forEach(t => t.done = false);
+  save();
+  render();
+}
+
+function clearAll() {
+  if (tasks.length === 0) return;
+  confirmBar.classList.add('visible');
+}
+
+function cancelClear() {
+  confirmBar.classList.remove('visible');
+}
+
+function confirmClear() {
+  confirmBar.classList.remove('visible');
+  tasks = [];
+  save();
+  render();
+}
+
+// ── CONFETTI ─────────────────────────────────────────────────────────────────
+
+const COLORS = ['#D85A30','#E8A87C','#F5C4B3','#639922','#97C459','#378ADD','#B5D4F4','#D4537E','#FAC775'];
+let particles = [];
+let animId = null;
+
+function explodeConfetti(el) {
+  const rect = el.getBoundingClientRect();
+  const ox = rect.left + rect.width / 2;
+  const oy = rect.top + rect.height / 2;
+  for (let i = 0; i < 60; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3 + Math.random() * 8;
+    particles.push({
+      x: ox, y: oy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 4,
+      size: 4 + Math.random() * 6,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12,
+      life: 1,
+      decay: 0.012 + Math.random() * 0.01,
+      shape: Math.random() > 0.4 ? 'rect' : 'circle'
+    });
+  }
+  if (!animId) animate();
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0);
+  if (particles.length === 0) { animId = null; return; }
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.3;
+    p.vx *= 0.99;
+    p.rotation += p.rotSpeed;
+    p.life -= p.decay;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation * Math.PI / 180);
+    ctx.fillStyle = p.color;
+    if (p.shape === 'rect') {
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, p.size/2, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+  animId = requestAnimationFrame(animate);
+}
+
+// ── VICTORY ──────────────────────────────────────────────────────────────────
+
+let victoryInterval = null;
+
+function victoryRain() {
+  if (victoryInterval) clearInterval(victoryInterval);
+  const duration = 3000;
+  const start = Date.now();
+  function spawnWave() {
+    const elapsed = Date.now() - start;
+    if (elapsed >= duration) { clearInterval(victoryInterval); victoryInterval = null; return; }
+    const count = 25;
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: -10,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 2 + Math.random() * 5,
+        size: 5 + Math.random() * 8,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 10,
+        life: 1,
+        decay: 0.004 + Math.random() * 0.004,
+        shape: Math.random() > 0.35 ? 'rect' : 'circle'
+      });
+    }
+    if (!animId) animate();
+  }
+  spawnWave();
+  victoryInterval = setInterval(spawnWave, 120);
+}
+
+function playVictory() {
+  try {
+    const ac = getAudioCtx();
+    // Fanfare : arpège montant + accord final
+    const melody = [
+      { f: 523.25, t: 0.00, dur: 0.18 },
+      { f: 659.25, t: 0.12, dur: 0.18 },
+      { f: 783.99, t: 0.24, dur: 0.18 },
+      { f: 1046.5, t: 0.36, dur: 0.30 },
+      { f: 1318.5, t: 0.50, dur: 0.40 },
+      // accord final
+      { f: 1046.5, t: 0.72, dur: 0.70 },
+      { f: 1318.5, t: 0.72, dur: 0.70 },
+    ];
+    melody.forEach(({ f, t, dur }) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, ac.currentTime + t);
+      gain.gain.setValueAtTime(0, ac.currentTime + t);
+      gain.gain.linearRampToValueAtTime(0.22, ac.currentTime + t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + t + dur);
+      osc.start(ac.currentTime + t);
+      osc.stop(ac.currentTime + t + dur + 0.05);
+    });
+  } catch(e) {}
+}
+
+// ── SOUND ─────────────────────────────────────────────────────────────────────
+
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playChime() {
+  try {
+    const ac = getAudioCtx();
+    const freqs = [523.25, 659.25, 783.99, 1046.5];
+    freqs.forEach((freq, i) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ac.currentTime + i * 0.08);
+      gain.gain.setValueAtTime(0, ac.currentTime + i * 0.08);
+      gain.gain.linearRampToValueAtTime(0.18, ac.currentTime + i * 0.08 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.08 + 0.35);
+      osc.start(ac.currentTime + i * 0.08);
+      osc.stop(ac.currentTime + i * 0.08 + 0.4);
+    });
+  } catch(e) {}
+}
+
+render();
+</script>
+</body>
+</html>
