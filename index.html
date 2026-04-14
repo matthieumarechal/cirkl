@@ -658,6 +658,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let tasks = [];
 let currentUser = null;
+let realtimeChannel = null;
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
 const authScreen  = document.getElementById('auth-screen');
@@ -808,12 +809,49 @@ async function init() {
       showApp();
       await loadTasks();
       render();
+      subscribeToRealtime();
     } else if (event === 'SIGNED_OUT') {
+      if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
       currentUser = null;
       tasks = [];
       showAuth();
     }
   });
+}
+
+// ── REALTIME ──────────────────────────────────────────────────────────────────
+function subscribeToRealtime() {
+  if (realtimeChannel) db.removeChannel(realtimeChannel);
+  realtimeChannel = db
+    .channel('tasks-changes')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${currentUser.id}` },
+      handleRealtimeEvent
+    )
+    .subscribe();
+}
+
+function handleRealtimeEvent({ eventType, new: newRow, old: oldRow }) {
+  if (eventType === 'INSERT') {
+    if (!tasks.find(t => t.id === newRow.id)) {
+      tasks.push(newRow);
+      tasks.sort((a, b) => a.position - b.position);
+      render();
+    }
+  } else if (eventType === 'UPDATE') {
+    const idx = tasks.findIndex(t => t.id === newRow.id);
+    if (idx !== -1) {
+      tasks[idx] = newRow;
+      tasks.sort((a, b) => a.position - b.position);
+      render();
+    }
+  } else if (eventType === 'DELETE') {
+    const idx = tasks.findIndex(t => t.id === oldRow.id);
+    if (idx !== -1) {
+      tasks.splice(idx, 1);
+      render();
+    }
+  }
 }
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
