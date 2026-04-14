@@ -38,6 +38,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=VT323&display=swap" rel="stylesheet">
 
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -577,6 +578,181 @@
 
   .drag-handle:hover { color: var(--ink2); }
   .dragging-active .task-item { transition: none; }
+
+  /* ── MODAL ───────────────────────────────────────────────────────────────── */
+
+  #info-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  #info-btn:hover {
+    background: var(--surface2);
+    border-color: rgba(44,42,36,0.25);
+    color: var(--ink);
+  }
+
+  #modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44,42,36,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  #modal-overlay.visible { display: flex; }
+
+  #modal-card {
+    width: 100%;
+    max-width: 440px;
+    max-height: 85svh;
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    border-radius: 24px;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: slideIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .modal-title {
+    font-family: 'Bagel Fat One', cursive;
+    font-size: 1.8rem;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .modal-title span { color: var(--accent); }
+
+  #modal-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: var(--ink2);
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  .modal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .modal-section h3 {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .modal-section p {
+    font-size: 0.92rem;
+    color: var(--ink2);
+    line-height: 1.6;
+  }
+
+  .modal-section ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0rem;
+  }
+
+  .modal-section ul li {
+    font-size: 0.92rem;
+    color: var(--ink2);
+    line-height: 1.5;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .modal-section ul li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .modal-version {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .modal-version-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    background: #a369b3;
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  .modal-version-name {
+    font-size: 0.88rem;
+    color: #7a4a8a;
+    font-style: italic;
+  }
+
+  .modal-version-date {
+    font-size: 0.7rem;
+    color: #a577b4;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  .modal-section.version-section {
+    background: #eed3f6;
+    border-radius: 0 0 24px 24px;
+    padding: 1.4rem 2rem 2rem;
+    margin: 0 -2rem -2rem;
+    gap: 0.8rem;
+  }
+
+  .modal-section.version-section h3 {
+    color: #7a4a8a;
+  }
+
+  .modal-section.version-section ul li {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    color: #9267a2;
+  }
+
+  .modal-section.version-section ul li::before {
+    color: #a882b6;
+  }
 </style>
 </head>
 <body>
@@ -618,6 +794,47 @@
   </div>
 </div>
 
+<!-- ── MODAL ─────────────────────────────────────────────────────────────────── -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">CIRKL<span>·</span></div>
+      <button id="modal-close" onclick="closeInfoModal()" title="Fermer">✕</button>
+    </div>
+
+    <div class="modal-section">
+      <h3>C'est quoi ?</h3>
+      <p>Un gestionnaire de tâches simple, intuitif et convivial, conçu pour ceux qui ont du mal à gérer certaines tâches que d'autres trouvent faciles.</p>
+    </div>
+
+    <div class="modal-section">
+      <h3>Comment ça marche ?</h3>
+      <ul>
+        <li>Ajoute tes propres tâches dans le champ en bas de l'écran, elles t'appartiennent et personne d'autre ne les voit.</li>
+        <li>Appuie sur une tâche pour la cocher ou la décocher.</li>
+        <li>Maintiens une tâche et glisse-la pour réorganiser l'ordre à ta convenance.</li>
+        <li>Tes tâches sont synchronisées en temps réel sur tous tes appareils connectés avec le même compte.</li>
+        <li>Le contenu de tes tâches est chiffré — même nous ne pouvons pas lire ce que tu écris.</li>
+      </ul>
+    </div>
+
+    <div class="modal-section version-section">
+      <h3>Version</h3>
+      <div class="modal-version">
+        <span class="modal-version-badge">v0.1</span>
+        <span class="modal-version-name">Mauve Crépuscule</span>
+        <span class="modal-version-date">April 2026</span>
+      </div>
+      <ul>
+        <li>Gestion de compte pour synchroniser sur différents appareils</li>
+        <li>Connexion avec Discord</li>
+        <li>Rafraîchissement en temps réel entre les différents supports</li>
+        <li>Installable sur mobile en raccourci écran d'accueil</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <!-- ── APP ──────────────────────────────────────────────────────────────────── -->
 <div id="app">
 
@@ -631,6 +848,7 @@
       Tout décocher
     </button>
     <button id="clear-btn" onclick="clearAll()">Effacer</button>
+    <button id="info-btn" onclick="openInfoModal()" title="À propos">?</button>
     <button id="logout-btn" onclick="signOut()" title="Se déconnecter">↪</button>
   </div>
 </header>
@@ -783,6 +1001,19 @@ function friendlyAuthError(msg) {
 
 async function signOut() {
   await db.auth.signOut();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openInfoModal() {
+  document.getElementById('modal-overlay').classList.add('visible');
+}
+
+function closeInfoModal() {
+  document.getElementById('modal-overlay').classList.remove('visible');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeInfoModal();
 }
 
 async function signInWithDiscord() {
