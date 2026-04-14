@@ -43,7 +43,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- Cloudflare Turnstile -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=initTurnstile" async defer></script>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -693,8 +693,7 @@ function initTurnstile() {
   });
 }
 
-// Initialise le widget une fois le script Turnstile chargé
-document.querySelector('script[src*="turnstile"]').addEventListener('load', initTurnstile);
+// initTurnstile est appelée directement par le script Turnstile via ?onload=initTurnstile
 
 // ── AUTH UI ───────────────────────────────────────────────────────────────────
 let authMode = 'login';
