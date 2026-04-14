@@ -892,14 +892,12 @@ async function addTask() {
 }
 
 async function toggleTask(i, el) {
-  tasks[i].done = !tasks[i].done;
-  const done = tasks[i].done;
+  const done = !tasks[i].done;
+  tasks[i].done = done;
 
-  await db.from('tasks').update({ done }).eq('id', tasks[i].id);
-
+  // Optimistic update : UI immédiate, requête en arrière-plan
   el.classList.toggle('done', done);
   el.querySelector('.task-label').style.color = done ? 'var(--done-text)' : 'var(--ink)';
-
   if (done) {
     const allDone = tasks.length > 0 && tasks.every(t => t.done);
     explodeConfetti(el);
@@ -907,6 +905,13 @@ async function toggleTask(i, el) {
     if (allDone) setTimeout(() => { victoryRain(); playVictory(); }, 250);
   }
   updateCounter();
+
+  const { error } = await db.from('tasks').update({ done }).eq('id', tasks[i].id);
+  if (error) {
+    // Rollback si la requête échoue
+    tasks[i].done = !done;
+    render();
+  }
 }
 
 async function uncheckAll() {
