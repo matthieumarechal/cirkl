@@ -776,7 +776,7 @@ async function signOut() {
 async function signInWithDiscord() {
   await db.auth.signInWithOAuth({
     provider: 'discord',
-    options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'none' } }
+    options: { redirectTo: window.location.origin + window.location.pathname }
   });
 }
 
