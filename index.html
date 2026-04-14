@@ -798,6 +798,7 @@ async function init() {
     showApp();
     await loadTasks();
     render();
+    subscribeToRealtime();
   } else {
     showAuth();
   }
