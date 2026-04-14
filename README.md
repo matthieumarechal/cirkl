@@ -2,8 +2,10 @@
 
 CIRKL is a **simple** tool for managing routine tasks, designed to help you tackle those everyday chores that can sometimes be **difficult** or **easy to forget**.
 
+actual version : 0.1
+
 [Live Demo](https://cirkl.craftbench.fr/)
 
-At the moment, your tasks data are stored in your browser on your device, but this may change in the future depending on requirements.
+Since the 0.1 version, the data are managed and encrypted via Supabase 
 
 _This little web app was originally designed to help me with my daily tasks._
