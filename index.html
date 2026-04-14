@@ -248,6 +248,15 @@
   .auth-discord-btn:hover { background: #4752C4; }
   .auth-discord-btn:active { transform: scale(0.98); }
 
+  .auth-info-link {
+    color: var(--ink2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+
+  .auth-info-link:hover { color: var(--accent); }
+
   /* ── APP ─────────────────────────────────────────────────────────────────── */
 
   #app { display: none; }
@@ -791,6 +800,7 @@
       </svg>
       Continuer avec Discord
     </button>
+    <p class="auth-hint"><a href="#" class="auth-info-link" onclick="openInfoModal(); return false;">En savoir plus sur CIRKL</a></p>
   </div>
 </div>
 
