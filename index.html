@@ -248,6 +248,16 @@
   .auth-discord-btn:hover { background: #4752C4; }
   .auth-discord-btn:active { transform: scale(0.98); }
 
+  #forgot-link {
+    font-size: 0.78rem;
+    color: var(--ink2);
+    text-align: right;
+    text-decoration: none;
+    transition: color 0.15s;
+    align-self: flex-end;
+  }
+  #forgot-link:hover { color: var(--accent); }
+
   .auth-info-link {
     color: var(--ink2);
     text-decoration: underline;
@@ -891,18 +901,19 @@
         Un gestionnaire de tâches simple, intuitif et convivial, conçu pour celles et ceux qui ont du mal à gérer certaines tâches que d'autres trouvent faciles
       </p>
     </div>
-    <div class="auth-tabs">
+    <div class="auth-tabs" id="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="setAuthMode('login')">Se connecter</button>
       <button class="auth-tab" id="tab-signup" onclick="setAuthMode('signup')">S'inscrire</button>
     </div>
     <div id="auth-error"></div>
-    <div class="auth-field">
+    <div class="auth-field" id="auth-email-field">
       <label for="auth-email">Email</label>
       <input id="auth-email" type="email" placeholder="ton@email.com" autocomplete="email">
     </div>
-    <div class="auth-field">
+    <div class="auth-field" id="auth-password-field">
       <label for="auth-password">Mot de passe</label>
       <input id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password">
+      <a href="#" id="forgot-link" onclick="setAuthMode('reset'); return false;">Mot de passe oublié ?</a>
     </div>
     <div id="turnstile-container" style="display:flex; justify-content:center;"></div>
     <button id="auth-submit" onclick="handleAuth()">Se connecter</button>
@@ -1064,6 +1075,7 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let tasks = [];
 let currentUser = null;
+let passwordRecoveryMode = false;
 let realtimeChannel = null;
 
 // ── DOM REFS ──────────────────────────────────────────────────────────────────
@@ -1106,13 +1118,44 @@ let authMode = 'login';
 
 function setAuthMode(mode) {
   authMode = mode;
-  const isLogin = mode === 'login';
+  const isLogin    = mode === 'login';
+  const isSignup   = mode === 'signup';
+  const isReset    = mode === 'reset';
+  const isNewPass  = mode === 'new-password';
+
+  document.getElementById('auth-tabs').style.display            = (isReset || isNewPass) ? 'none' : '';
+  document.getElementById('auth-email-field').style.display     = isNewPass ? 'none' : '';
+  document.getElementById('auth-password-field').style.display  = isReset   ? 'none' : '';
+  document.getElementById('turnstile-container').style.display  = isNewPass ? 'none' : '';
+
+  // Afficher le champ password en mode new-password (nouveau mot de passe)
+  if (isNewPass) {
+    document.getElementById('auth-password-field').style.display = '';
+    document.getElementById('auth-password').placeholder = 'Nouveau mot de passe';
+    document.getElementById('auth-password').autocomplete = 'new-password';
+    const lbl = document.querySelector('#auth-password-field label');
+    if (lbl) lbl.textContent = 'Nouveau mot de passe';
+  } else {
+    document.getElementById('auth-password').placeholder = '••••••••';
+    document.getElementById('auth-password').autocomplete = isLogin ? 'current-password' : 'new-password';
+    const lbl = document.querySelector('#auth-password-field label');
+    if (lbl) lbl.textContent = 'Mot de passe';
+  }
+
   document.getElementById('tab-login').classList.toggle('active', isLogin);
-  document.getElementById('tab-signup').classList.toggle('active', !isLogin);
-  document.getElementById('auth-submit').textContent = isLogin ? 'Se connecter' : 'Créer un compte';
-  document.getElementById('auth-hint').innerHTML = isLogin
-    ? 'Pas encore de compte ? <a href="#" onclick="setAuthMode(\'signup\'); return false;" style="color:var(--accent);">S\'inscrire</a>'
-    : 'Déjà un compte ? <a href="#" onclick="setAuthMode(\'login\'); return false;" style="color:var(--accent);">Se connecter</a>';
+  document.getElementById('tab-signup').classList.toggle('active', isSignup);
+
+  document.getElementById('auth-submit').textContent = isLogin     ? 'Se connecter'
+                                                      : isSignup   ? 'Créer un compte'
+                                                      : isReset    ? 'Envoyer le lien'
+                                                      : 'Enregistrer le mot de passe';
+
+  document.getElementById('auth-hint').innerHTML = (isReset || isNewPass)
+    ? (isNewPass ? '' : '<a href="#" onclick="setAuthMode(\'login\'); return false;" style="color:var(--accent);">← Retour à la connexion</a>')
+    : isLogin
+      ? 'Pas encore de compte ? <a href="#" onclick="setAuthMode(\'signup\'); return false;" style="color:var(--accent);">S\'inscrire</a>'
+      : 'Déjà un compte ? <a href="#" onclick="setAuthMode(\'login\'); return false;" style="color:var(--accent);">Se connecter</a>';
+
   setAuthError('');
 }
 
@@ -1126,6 +1169,47 @@ async function handleAuth() {
   const email    = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const btn      = document.getElementById('auth-submit');
+
+  // Mode : envoyer le lien de reset
+  if (authMode === 'reset') {
+    if (!email) { setAuthError('Merci de saisir ton adresse email.'); return; }
+    const captchaToken = window.turnstile?.getResponse(turnstileWidgetId);
+    if (!captchaToken) { setAuthError('Merci de valider le captcha.'); return; }
+    btn.disabled = true;
+    setAuthError('');
+    try {
+      const { error } = await db.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname,
+        captchaToken,
+      });
+      if (error) throw error;
+      setAuthInfo('Lien envoyé ! Vérifie ta boîte mail et clique sur le lien pour choisir un nouveau mot de passe.');
+      window.turnstile?.reset(turnstileWidgetId);
+    } catch (err) {
+      setAuthError(friendlyAuthError(err.message));
+      window.turnstile?.reset(turnstileWidgetId);
+    }
+    btn.disabled = false;
+    return;
+  }
+
+  // Mode : enregistrer le nouveau mot de passe (après clic sur le lien du mail)
+  if (authMode === 'new-password') {
+    if (!password) { setAuthError('Merci de saisir un nouveau mot de passe.'); return; }
+    btn.disabled = true;
+    setAuthError('');
+    try {
+      const { error } = await db.auth.updateUser({ password });
+      if (error) throw error;
+      passwordRecoveryMode = false;
+      setAuthInfo('Mot de passe mis à jour ! Tu es connecté.');
+      setAuthMode('login');
+    } catch (err) {
+      setAuthError(friendlyAuthError(err.message));
+    }
+    btn.disabled = false;
+    return;
+  }
 
   if (!email || !password) { setAuthError('Merci de remplir tous les champs.'); return; }
 
@@ -1142,7 +1226,6 @@ async function handleAuth() {
     } else {
       const { data, error } = await db.auth.signUp({ email, password, options: { captchaToken } });
       if (error) throw error;
-      // Si Supabase requiert une confirmation par email
       if (data.user && !data.session) {
         setAuthInfo('Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.');
         setAuthMode('login');
@@ -1245,20 +1328,34 @@ function showApp() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    showApp();
-    await loadTasks();
-    render();
-    subscribeToRealtime();
-  } else {
+  // Si l'URL contient un token de recovery, on attend PASSWORD_RECOVERY — pas de showApp()
+  const isRecoveryUrl = window.location.hash.includes('type=recovery');
+  if (isRecoveryUrl) {
     showAuth();
+  } else {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      showApp();
+      await loadTasks();
+      render();
+      subscribeToRealtime();
+    } else {
+      showAuth();
+    }
   }
 
   db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      passwordRecoveryMode = true;
+      currentUser = session?.user || null;
+      showAuth();
+      setAuthMode('new-password');
+      return;
+    }
     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
       if (!session) return;
+      if (passwordRecoveryMode) { currentUser = session.user; return; }
       const wasLoggedIn = !!currentUser;
       currentUser = session.user;
       if (!wasLoggedIn) {
