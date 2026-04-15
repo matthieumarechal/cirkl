@@ -142,6 +142,14 @@
     box-shadow: 0 1px 4px rgba(44,42,36,0.1);
   }
 
+  #auth-email-field, #auth-firstname-field, #auth-password-field {
+    margin: 0 0 10px 0;
+  }
+
+  #turnstile-container {
+    margin: 0 0 10px 0;
+  }
+
   .auth-field {
     display: flex;
     flex-direction: column;
@@ -209,6 +217,7 @@
     color: var(--ink2);
     text-align: center;
     line-height: 1.5;
+    padding-top: 10px;
   }
 
   .auth-divider {
@@ -308,6 +317,25 @@
     display: flex;
     gap: 8px;
     align-items: center;
+  }
+
+  #greeting {
+    display: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink2);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @media (min-width: 769px) {
+    #greeting { display: block; }
   }
 
   #uncheck-btn {
@@ -906,18 +934,24 @@
       <button class="auth-tab" id="tab-signup" onclick="setAuthMode('signup')">S'inscrire</button>
     </div>
     <div id="auth-error"></div>
+    <form id="auth-form" onsubmit="handleAuth(); return false;" autocomplete="on">
     <div class="auth-field" id="auth-email-field">
       <label for="auth-email">Email</label>
-      <input id="auth-email" type="email" placeholder="ton@email.com" autocomplete="email">
+      <input id="auth-email" name="email" type="email" placeholder="ton@email.com" autocomplete="email">
+    </div>
+    <div class="auth-field" id="auth-firstname-field" style="display:none;">
+      <label for="auth-firstname">Prénom</label>
+      <input id="auth-firstname" name="firstname" type="text" placeholder="Ton prénom" autocomplete="given-name">
     </div>
     <div class="auth-field" id="auth-password-field">
       <label for="auth-password">Mot de passe</label>
-      <input id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password">
+      <input id="auth-password" name="password" type="password" placeholder="••••••••" autocomplete="current-password">
       <a href="#" id="forgot-link" onclick="setAuthMode('reset'); return false;">Mot de passe oublié ?</a>
     </div>
     <div id="turnstile-container" style="display:flex; justify-content:center;"></div>
-    <button id="auth-submit" onclick="handleAuth()">Se connecter</button>
+    <button id="auth-submit" type="submit">Se connecter</button>
     <p class="auth-hint" id="auth-hint">Pas encore de compte ? <a href="#" onclick="setAuthMode('signup'); return false;" style="color:var(--accent);">S'inscrire</a></p>
+    </form>
 
     <div class="auth-divider"><span>ou</span></div>
 
@@ -991,6 +1025,7 @@
 <header>
   <h1>CIRKL<span>·</span></h1>
   <div class="header-actions">
+    <span id="greeting"></span>
     <button id="uncheck-btn" onclick="uncheckAll()" title="Tout décocher">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
@@ -1125,6 +1160,7 @@ function setAuthMode(mode) {
 
   document.getElementById('auth-tabs').style.display            = (isReset || isNewPass) ? 'none' : '';
   document.getElementById('auth-email-field').style.display     = isNewPass ? 'none' : '';
+  document.getElementById('auth-firstname-field').style.display = isSignup  ? ''     : 'none';
   document.getElementById('auth-password-field').style.display  = isReset   ? 'none' : '';
   document.getElementById('turnstile-container').style.display  = isNewPass ? 'none' : '';
 
@@ -1224,7 +1260,11 @@ async function handleAuth() {
       const { error } = await db.auth.signInWithPassword({ email, password, options: { captchaToken } });
       if (error) throw error;
     } else {
-      const { data, error } = await db.auth.signUp({ email, password, options: { captchaToken } });
+      const firstName = document.getElementById('auth-firstname').value.trim();
+      const { data, error } = await db.auth.signUp({
+        email, password,
+        options: { captchaToken, data: { first_name: firstName || undefined } }
+      });
       if (error) throw error;
       if (data.user && !data.session) {
         setAuthInfo('Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.');
@@ -1324,6 +1364,15 @@ function showAuth() {
 function showApp() {
   authScreen.classList.remove('visible');
   appEl.classList.add('visible');
+  updateGreeting();
+}
+
+function updateGreeting() {
+  const el = document.getElementById('greeting');
+  if (!el || !currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  const name = meta.first_name || meta.full_name || meta.name || null;
+  el.textContent = name ? `Hey ${name}` : '';
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
