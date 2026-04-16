@@ -353,6 +353,8 @@
 
   #points-display {
     display: none;
+    align-items: center;
+    gap: 5px;
     font-family: 'DM Sans', sans-serif;
     font-size: 0.78rem;
     font-weight: 500;
@@ -367,7 +369,7 @@
   }
 
   @media (min-width: 769px) {
-    #points-display { display: block; }
+    #points-display { display: flex; }
   }
 
   .points-particle {
@@ -1439,7 +1441,7 @@ async function loadUserPoints() {
 function updatePointsDisplay() {
   const el = document.getElementById('points-display');
   if (!el) return;
-  el.textContent = `✦ ${userPointsBalance}`;
+  el.innerHTML = `<img src="img/icon/miriel.svg" width="13" height="13" style="opacity:0.7;vertical-align:middle;">${userPointsBalance}`;
 }
 
 async function awardPointsForTask(taskId) {
@@ -1481,14 +1483,11 @@ async function checkAllTasksBonus() {
   return 50;
 }
 
-function animatePointsGain(sourceEl, points) {
+function animatePointsGain(startX, startY, points) {
   const targetEl = document.getElementById('points-display');
   if (!targetEl || !targetEl.offsetParent) return;
 
-  const sourceRect = sourceEl.getBoundingClientRect();
   const targetRect = targetEl.getBoundingClientRect();
-  const startX = sourceRect.left + sourceRect.width / 2;
-  const startY = sourceRect.top + sourceRect.height / 2;
   const endX = targetRect.left + targetRect.width / 2;
   const endY = targetRect.top + targetRect.height / 2;
 
@@ -1681,7 +1680,7 @@ async function addTask() {
   }
 }
 
-async function toggleTask(i, el) {
+async function toggleTask(i, el, clickX, clickY) {
   const done = !tasks[i].done;
   tasks[i].done = done;
 
@@ -1694,9 +1693,9 @@ async function toggleTask(i, el) {
     playChime();
     if (allDone) setTimeout(() => { victoryRain(); playVictory(); }, 250);
     awardPointsForTask(tasks[i].id).then(pts => {
-      if (pts > 0) animatePointsGain(el, pts);
+      if (pts > 0) animatePointsGain(clickX, clickY, pts);
       if (allDone) checkAllTasksBonus().then(bonus => {
-        if (bonus > 0) setTimeout(() => animatePointsGain(el, bonus), pts > 0 ? 600 : 0);
+        if (bonus > 0) setTimeout(() => animatePointsGain(clickX, clickY, bonus), pts > 0 ? 600 : 0);
       });
     });
   }
@@ -1771,7 +1770,7 @@ function render() {
     `;
     el.addEventListener('click', e => {
       if (e.target.closest('[data-delete]')) return;
-      toggleTask(i, el);
+      toggleTask(i, el, e.clientX, e.clientY);
     });
     el.querySelector('[data-delete]').addEventListener('click', e => {
       e.stopPropagation();
