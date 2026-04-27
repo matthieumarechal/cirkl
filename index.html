@@ -620,16 +620,39 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--surface);
     border-top: 1px solid var(--border);
-    padding: 12px 1.5rem calc(12px + env(safe-area-inset-bottom, 0px));
     display: flex;
-    gap: 10px;
-    align-items: center;
+    flex-direction: column;
+    gap: 0;
     z-index: 20;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     background: rgba(253,250,244,0.92);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 1.5rem calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #mobile-points {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 1.5rem 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink2);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    #mobile-points { display: flex; }
   }
 
   #new-task-input {
@@ -1129,12 +1152,15 @@
 <div id="task-list"></div>
 
 <div class="input-bar">
-  <input id="new-task-input" type="text" placeholder="Ajouter une tâche…" maxlength="120" autocomplete="off" autocorrect="off" spellcheck="false">
-  <button id="add-btn" onclick="addTask()">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M10 4V16M4 10H16" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-    </svg>
-  </button>
+  <div id="mobile-points"></div>
+  <div class="input-row">
+    <input id="new-task-input" type="text" placeholder="Ajouter une tâche…" maxlength="120" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="add-btn" onclick="addTask()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 4V16M4 10H16" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 </div><!-- #app -->
@@ -1439,9 +1465,11 @@ async function loadUserPoints() {
 }
 
 function updatePointsDisplay() {
-  const el = document.getElementById('points-display');
-  if (!el) return;
-  el.innerHTML = `<img src="img/icon/miriel.svg" width="13" height="13" style="opacity:0.7;vertical-align:middle;">${userPointsBalance}`;
+  const content = `<img src="img/icon/miriel.svg" width="13" height="13" style="opacity:0.7;vertical-align:middle;">${userPointsBalance}`;
+  const desktop = document.getElementById('points-display');
+  const mobile  = document.getElementById('mobile-points');
+  if (desktop) desktop.innerHTML = content;
+  if (mobile)  mobile.innerHTML  = content;
 }
 
 async function awardPointsForTask(taskId) {
@@ -1484,8 +1512,10 @@ async function checkAllTasksBonus() {
 }
 
 function animatePointsGain(startX, startY, points) {
-  const targetEl = document.getElementById('points-display');
-  if (!targetEl || !targetEl.offsetParent) return;
+  const targetEl = window.innerWidth >= 769
+    ? document.getElementById('points-display')
+    : document.getElementById('mobile-points');
+  if (!targetEl) return;
 
   const targetRect = targetEl.getBoundingClientRect();
   const endX = targetRect.left + targetRect.width / 2;
