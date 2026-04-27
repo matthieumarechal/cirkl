@@ -5,6 +5,13 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ---
 
+## [0.1.3] — Sorbet Mimosa — 27 Avril 2026
+
+### Added
+- Ajout d'un ystème de points (les Bogomils) avec barème dégressif (25→1 pt par tâche, bonus 50 pts si tout terminé - barème suceptible de changer - récompense en cours d'élaboration)
+- Système anti-abus par jour pour les Bogomils
+- Animation de particule quand on gagne des Bogomils
+
 ## [0.1.2] — Mauve Crépuscule — Avril 2026
 
 ### Added

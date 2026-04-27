@@ -474,7 +474,7 @@
   .hamburger-menu {
     display: none;
     position: absolute;
-    top: calc(100% - 6px);
+    top: calc(100% - 55px);
     right: 1.5rem;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -946,43 +946,43 @@
   .modal-version-badge {
     font-size: 0.75rem;
     font-weight: 600;
-    color: white;
-    background: #a369b3;
+    color: #c08f1b;
+    background: #ffd600;
     border-radius: 20px;
     padding: 3px 10px;
   }
 
   .modal-version-name {
     font-size: 0.88rem;
-    color: #7a4a8a;
+    color: #ffb70f;
     font-style: italic;
   }
 
   .modal-version-date {
     font-size: 0.7rem;
-    color: #a577b4;
+    color: #dd8c2fba;
     font-family: 'Courier New', Courier, monospace;
   }
 
   .modal-section.version-section {
-    background: #eed3f6;
+    background: #fffba8;
     padding: 1.4rem 2rem 2rem;
     margin: 0 -2rem -2rem;
     gap: 0.8rem;
   }
 
   .modal-section.version-section h3 {
-    color: #7a4a8a;
+    color: #ffb70f;
   }
 
   .modal-section.version-section ul li {
     font-family: 'DM Sans', sans-serif;
     font-size: 0.72rem;
-    color: #9267a2;
+    color: #dd8c2fba;
   }
 
   .modal-section.version-section ul li::before {
-    color: #a882b6;
+    color: #ffb70f;
   }
 </style>
 </head>
@@ -1064,23 +1064,21 @@
       <h3>Bugs connus / améliorations</h3>
       <ul>
         <li>L'app demande souvent de se reconnecter</li>
+        <li>Développer les récompense pour les points</li>
       </ul>
     </div>
 
     <div class="modal-section version-section">
       <h3>Version</h3>
       <div class="modal-version">
-        <span class="modal-version-badge">v0.1.1</span>
-        <span class="modal-version-name">Mauve Crépuscule</span>
-        <span class="modal-version-date">Avril 2026</span>
+        <span class="modal-version-badge">v0.1.3</span>
+        <span class="modal-version-name">Sorbet Mimosa</span>
+        <span class="modal-version-date">27 Avril 2026</span>
       </div>
       <ul>
-        <li>Gestion de compte pour synchroniser les tâches sur vos différents appareils</li>
-        <li>Connexion avec Discord</li>
-        <li>Rafraîchissement en temps réel de vos tâches</li>
-        <li>Installable sur mobile en raccourci écran d'accueil</li>
-        <li>Ajout de la section "à propos que vous êtes en train de lire"</li>
-        <li>La barre de progression reste toujours visible en haut du site</li>
+        <li>Ajout d'un ystème de points (les Bogomils) avec barème dégressif (25→1 pt par tâche, bonus 50 pts si tout terminé - barème suceptible de changer - récompense en cours d'élaboration)</li>
+        <li>Système anti-abus par jour pour les Bogomils</li>
+        <li>Animation de particule quand on gagne des Bogomils</li>
       </ul>
     </div>
   </div>
@@ -1125,7 +1123,7 @@
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M3 4h10M6 4V3h4v1M5.5 4l.5 9h4l.5-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Effacer
+      Effacer tâches
     </button>
     <button class="hamburger-item" onclick="hamburgerLogout()">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
