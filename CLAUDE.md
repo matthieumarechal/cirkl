@@ -73,19 +73,28 @@ Toutes les tables ont RLS activé (politique `auth.uid() = user_id`).
 - Reset quotidien des tâches (bouton)
 - Confettis + son au cochage d'une tâche
 - Pluie de confettis + son de victoire quand toutes les tâches sont faites
-- **Système de points** :
+- **Suppression de tâche avec undo** :
+  - Suppression optimiste (UI d'abord, DB après 10s)
+  - Toast en bas à droite (desktop) ou bas centré (mobile) avec bouton "Annuler"
+  - Barre de progression animée dans le toast (rétrécit sur 10s)
+  - Undo = annulation du timer + restauration dans le tableau local (aucun appel DB car la suppression n'a pas encore eu lieu)
+  - Si une nouvelle suppression arrive avant la fin du timer, l'ancienne est commitée immédiatement
+- **Système de points (Bogomils)** :
+  - La monnaie s'appelle **Bogomils** (symbole : `miriel.svg`)
   - Barème dégressif : 25, 20, 15, 10, 5, puis 1 pt par tâche cochée dans la journée
   - Bonus 50 pts quand toutes les tâches sont complétées
   - Anti-abus : `log_date` empêche de re-gagner des points en cochant/décochant
-  - Animation particules depuis le point de clic vers le compteur en header
+  - Animation particules depuis le point de clic vers le compteur de points
   - Sons (Web Audio API) : tick toutes les 5 particules, pitch proportionnel aux points gagnés
-  - Icône `miriel.svg` comme symbole monétaire
-  - Affiché uniquement sur desktop (≥769px), mais les points sont comptabilisés sur mobile aussi
+  - **Desktop** (≥769px) : pastille en haut à droite du header (`#points-display`), affiche icône + solde + "Bogomils"
+  - **Mobile** (<769px) : affiché dans `#counter-row` à droite de "X/Y terminées", même format icône + solde + "Bogomils". Particules remontent vers ce compteur (`animatePointsGain` utilise `window.innerWidth >= 769` pour choisir la cible)
 
 ## Points à faire
 
-- **Shop / utilisation des points** : à définir (idées : thèmes de couleur, effets particules alternatifs, badges/titres...)
-- **CLAUDE.md** : ce fichier — à pousser sur GitHub
+- **Shop / utilisation des Bogomils** : à définir (idées : thèmes de couleur, effets particules alternatifs, badges/titres...)
+- **Merger `feature/points` dans `main`** et déployer en prod
+- **Pousser CLAUDE.md sur GitHub**
+- **Mettre à jour CHANGELOG.md** avec les nouveautés (Bogomils, undo suppression, affichage mobile)
 - **E2E encryption** : Web Crypto API, AES-GCM 256 bits, avant lancement public
 - **Support Android PWA** : à étudier
 

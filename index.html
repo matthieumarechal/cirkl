@@ -730,7 +730,7 @@
     border: 1px solid #F09595;
     border-radius: 12px;
     padding: 10px 14px;
-    margin: 0 1.5rem 0.5rem;
+    margin: 1.5rem 1.5rem 0.5rem;
     font-size: 0.88rem;
     color: #A32D2D;
   }
@@ -1552,8 +1552,9 @@ function updatePointsDisplay() {
   const content = `<img src="img/icon/miriel.svg" width="13" height="13" style="opacity:0.7;vertical-align:middle;">${userPointsBalance}`;
   const desktop = document.getElementById('points-display');
   const mobile  = document.getElementById('mobile-points');
-  if (desktop) desktop.innerHTML = content;
-  if (mobile)  mobile.innerHTML  = content + `<span style="opacity:0.5;font-size:0.72rem;margin-left:2px;">Bogomils</span>`;
+  const bogomils = `<span style="opacity:0.5;font-size:0.72rem;margin-left:2px;">Bogomils</span>`;
+  if (desktop) desktop.innerHTML = content + bogomils;
+  if (mobile)  mobile.innerHTML  = content + bogomils;
 }
 
 async function awardPointsForTask(taskId) {
