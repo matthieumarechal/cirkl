@@ -1,0 +1,25 @@
+{
+  "name": "CIRKL",
+  "short_name": "Cirkl",
+  "description": "Routine tasks made easy",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F0E8",
+  "theme_color": "#F5F0E8",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "img/icon/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icon/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
