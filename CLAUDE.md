@@ -8,6 +8,7 @@ Application web PWA de gestion de tâches routinières personnelle. Projet solo 
 CSS, HTML, et JavaScript sont tous dans ce fichier. Il n'y a pas de build step, pas de framework, pas de bundler.
 
 - `img/` — assets (icônes PWA, splash screens iOS, curseurs custom, `img/icon/miriel.svg`)
+- `manifest.json` — manifest PWA Android (à la racine, même niveau qu'index.html)
 - `CHANGELOG.md`, `README.md` — documentation
 - Repo GitHub : `git@github.com:matthieumarechal/cirkl.git`
 
@@ -70,7 +71,7 @@ Toutes les tables ont RLS activé (politique `auth.uid() = user_id`).
 
 - Auth email/password + Discord OAuth
 - CRUD tâches avec drag & drop pour réordonner
-- Reset quotidien des tâches (bouton)
+- Reset quotidien des tâches (bouton "Tout effacer")
 - Confettis + son au cochage d'une tâche
 - Pluie de confettis + son de victoire quand toutes les tâches sont faites
 - **Suppression de tâche avec undo** :
@@ -86,17 +87,36 @@ Toutes les tables ont RLS activé (politique `auth.uid() = user_id`).
   - Anti-abus : `log_date` empêche de re-gagner des points en cochant/décochant
   - Animation particules depuis le point de clic vers le compteur de points
   - Sons (Web Audio API) : tick toutes les 5 particules, pitch proportionnel aux points gagnés
-  - **Desktop** (≥769px) : pastille en haut à droite du header (`#points-display`), affiche icône + solde + "Bogomils"
+  - **Desktop** (≥769px) : pastille en haut à droite du header (`#points-display`), à droite du prénom (`#greeting`). Affiche icône + solde + "Bogomils"
   - **Mobile** (<769px) : affiché dans `#counter-row` à droite de "X/Y terminées", même format icône + solde + "Bogomils". Particules remontent vers ce compteur (`animatePointsGain` utilise `window.innerWidth >= 769` pour choisir la cible)
+- **Curseurs custom** :
+  - Curseur par défaut : `img/cursor/pointer.svg`
+  - Curseur liens/boutons : `img/cursor/pointer_links.svg`
+  - Curseur drag : `img/cursor/cursor_grab.svg`
+  - Curseur champ texte (`#new-task-input`) : `img/cursor/cursor_text.svg`
+  - **Important** : tous les curseurs utilisent des URLs absolues `https://cirkl.craftbench.fr/img/cursor/...` — ne pas utiliser de chemins relatifs sinon ça ne fonctionne pas
+- **Favicon** : `img/icon/favicon.ico` (32×32)
+- **Modal "À propos"** avec accordéons :
+  - 6 sections : C'est quoi ?, Comment ça marche ?, Gestion des points, Bugs connus / améliorations, Disclaimer, Notes de version
+  - Comportement séquentiel : ferme d'abord la section ouverte (650ms CSS transition), puis ouvre la nouvelle
+  - `touch-action: manipulation` sur `.accordion-trigger` pour éliminer le délai 300ms mobile
+  - Flèches chevron agrandies via `transform: scale(1.5)` (sans affecter la hauteur des lignes)
+  - **Desktop** : scroll limité à `.accordion-list` (pas le modal entier), fond `#f0e9de` dans la zone vide sous les items, items avec fond `var(--surface)`, bordure bottom sur le dernier item
+  - **Mobile** : bottom sheet plein largeur (85svh), animation slide-up, scroll dans `.accordion-list`, flèche décalée à gauche via `margin-right`, padding spécifique sur la section "Notes de version"
+
+## PWA
+
+- **iOS** : meta tags `apple-mobile-web-app-capable`, `apple-touch-icon` (76, 120, 152, 167, 180px), splash screens. Pas de bannière d'installation automatique sur iOS — l'utilisateur doit passer par Partager → "Sur l'écran d'accueil" dans Safari
+- **Android** : `manifest.json` à la racine avec icônes 192×192 et 512×512 (`purpose: "any maskable"`), `<link rel="manifest">` et `<meta name="theme-color" content="#F5F0E8">` dans le head. Chrome propose automatiquement l'installation après quelques visites
 
 ## Points à faire
 
 - **Shop / utilisation des Bogomils** : à définir (idées : thèmes de couleur, effets particules alternatifs, badges/titres...)
 - **Merger `feature/points` dans `main`** et déployer en prod
 - **Pousser CLAUDE.md sur GitHub**
-- **Mettre à jour CHANGELOG.md** avec les nouveautés (Bogomils, undo suppression, affichage mobile)
+- **Mettre à jour CHANGELOG.md** avec les nouveautés (Bogomils, undo suppression, affichage mobile, modal accordéon, PWA Android, favicon, curseurs)
 - **E2E encryption** : Web Crypto API, AES-GCM 256 bits, avant lancement public
-- **Support Android PWA** : à étudier
+- **Support Android PWA** : manifest.json en place ✓, à tester sur un vrai appareil Android
 
 ## Branches git notables
 
