@@ -571,6 +571,15 @@
     color: var(--ink);
   }
 
+  .greeting-popup-item:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .greeting-popup-member {
+    font-size: 0.82rem;
+    color: var(--ink2);
+  }
+
   @media (max-width: 768px) {
     #clear-btn, #info-btn, #logout-btn { display: none; }
     #hamburger-btn { display: flex; }
@@ -1022,7 +1031,60 @@
 
   .modal-title span { color: var(--accent); }
 
-  #modal-close {
+  #profile-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44,42,36,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 1.5rem;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  #profile-modal-overlay.visible { display: flex; }
+
+  #profile-modal-card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    border-radius: 24px;
+    overflow: hidden;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: slideIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  .profile-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .profile-modal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .profile-modal-item:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  #modal-close, #profile-modal-close {
     background: none;
     border: none;
     font-size: 1.4rem;
@@ -1474,6 +1536,31 @@
   </div>
 </div>
 
+<div id="profile-modal-overlay" onclick="closeProfileModalOverlay(event)">
+  <div id="profile-modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Profil</div>
+      <button id="profile-modal-close" onclick="closeProfileModal()" title="Fermer">✕</button>
+    </div>
+    <div class="profile-modal-body">
+      <div class="profile-modal-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="4" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Membre depuis le&nbsp;<span id="profile-member-since">—</span>
+      </div>
+      <div class="profile-modal-item">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2l1.5 3 3.5.5-2.5 2.5.6 3.5L8 10l-3.1 1.5.6-3.5L3 5.5 6.5 5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+        Tâches réalisées&nbsp;: <span id="profile-tasks-count">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── APP ──────────────────────────────────────────────────────────────────── -->
 <div id="app">
 
@@ -1484,11 +1571,19 @@
     <div class="greeting-wrapper">
       <span id="greeting" onclick="toggleGreetingPopup()" title="Voir mes statistiques"></span>
       <div class="greeting-popup" id="greeting-popup">
+        <div class="greeting-popup-item greeting-popup-member">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="4" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Membre depuis le&nbsp;<span id="member-since">—</span>
+        </div>
         <div class="greeting-popup-item">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M8 2l1.5 3 3.5.5-2.5 2.5.6 3.5L8 10l-3.1 1.5.6-3.5L3 5.5 6.5 5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
           </svg>
-          <span id="tasks-completed-count">—</span>&nbsp;tâches réalisées
+          Tâches réalisées&nbsp;: <span id="tasks-completed-count">—</span>
         </div>
       </div>
     </div>
@@ -1511,6 +1606,13 @@
     </button>
   </div>
   <div class="hamburger-menu" id="hamburger-menu">
+    <button class="hamburger-item" onclick="hamburgerProfile()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M3 13c0-2.761 2.239-4 5-4s5 1.239 5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      Profil
+    </button>
     <button class="hamburger-item" onclick="hamburgerAbout()">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
@@ -1798,6 +1900,11 @@ function closeHamburger() {
   document.getElementById('hamburger-menu').classList.remove('open');
 }
 
+function hamburgerProfile() {
+  closeHamburger();
+  openProfileModal();
+}
+
 function hamburgerAbout() {
   closeHamburger();
   openInfoModal();
@@ -1840,10 +1947,40 @@ async function toggleGreetingPopup() {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', currentUser.id)
       .eq('reason', 'task_complete');
-    const el = document.getElementById('tasks-completed-count');
-    if (el) el.textContent = count ?? 0;
+    const countEl = document.getElementById('tasks-completed-count');
+    if (countEl) countEl.textContent = count ?? 0;
+
+    const sinceEl = document.getElementById('member-since');
+    if (sinceEl && currentUser.created_at) {
+      const d = new Date(currentUser.created_at);
+      sinceEl.textContent = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
   }
   popup.classList.toggle('open');
+}
+
+async function openProfileModal() {
+  const { count } = await db.from('points_log')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', currentUser.id)
+    .eq('reason', 'task_complete');
+  document.getElementById('profile-tasks-count').textContent = count ?? 0;
+  if (currentUser.created_at) {
+    const d = new Date(currentUser.created_at);
+    document.getElementById('profile-member-since').textContent =
+      d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+  document.getElementById('profile-modal-overlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-modal-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+function closeProfileModalOverlay(e) {
+  if (e.target === document.getElementById('profile-modal-overlay')) closeProfileModal();
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
