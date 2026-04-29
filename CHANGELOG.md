@@ -5,6 +5,16 @@ Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ---
 
+## [0.1.4] — Nénuphar Lunaire - 28 Avril 2026
+
+### Added
+- Ajout de la possibilité d’annuler la suppression d’une tâche
+- Il est maintenant possible d’ajouter le site en "raccourci application web" sur l’écran - d’accueil pour les Android (iOS était déjà disponible)
+- Optimisation et embelissage de la section "à propos"
+
+### Fixed
+- Correction de bugs mineurs...
+
 ## [0.1.3] — Sorbet Mimosa — 27 Avril 2026
 
 ### Added
